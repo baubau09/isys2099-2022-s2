@@ -1,0 +1,16 @@
+-- ALTER TABLE to add partitions
+ALTER TABLE application
+PARTITION BY RANGE (price) (
+  PARTITION p0 VALUES LESS THAN (1001),
+  PARTITION p1 VALUES LESS THAN (10001),
+  PARTITION p2 VALUES LESS THAN (MAXVALUE)
+);
+
+-- display the approximate number of records per partition
+SELECT PARTITION_NAME, TABLE_ROWS
+FROM INFORMATION_SCHEMA.PARTITIONS
+WHERE TABLE_NAME = 'application';
+
+-- EXPLAIN statement
+EXPLAIN SELECT * FROM application
+WHERE price < 950;
