@@ -9,8 +9,7 @@ CREATE TABLE EMPLOYEE
   Sex CHAR(1),
   Salary DECIMAL(5),
   Super_ssn CHAR(9),
-  Dno INT NOT NULL,
-  PRIMARY KEY (Ssn)
+  Dno INT NOT NULL
 );
 
 CREATE TABLE DEPARTMENT
@@ -18,15 +17,13 @@ CREATE TABLE DEPARTMENT
   Dname VARCHAR(15) NOT NULL,
   Dnumber INT NOT NULL,
   Mgr_ssn CHAR(9) NOT NULL,
-  Mgr_start_date DATE,
-  PRIMARY KEY (Dnumber)
+  Mgr_start_date DATE
 );
 
 CREATE TABLE DEPT_LOCATIONS
 (
   Dnumber INT NOT NULL,
-  Dlocation VARCHAR(15) NOT NULL,
-  PRIMARY KEY (Dnumber, Dlocation)
+  Dlocation VARCHAR(15) NOT NULL
 );
 
 CREATE TABLE PROJECT
@@ -34,16 +31,14 @@ CREATE TABLE PROJECT
   Pname VARCHAR(15) NOT NULL,
   Pnumber INT NOT NULL,
   Plocation VARCHAR(15),
-  Dnum INT NOT NULL,
-  PRIMARY KEY (Pnumber)
+  Dnum INT NOT NULL
 );
 
 CREATE TABLE WORKS_ON
 (
   Essn CHAR(9) NOT NULL,
   Pno INT NOT NULL,
-  Hours DECIMAL(3,1) NOT NULL,
-  PRIMARY KEY (Essn, Pno)
+  Hours DECIMAL(3,1) NOT NULL
 );
 
 CREATE TABLE DEPENDENT
@@ -52,8 +47,7 @@ CREATE TABLE DEPENDENT
   Dependent_name VARCHAR(15) NOT NULL,
   Sex CHAR,
   Bdate DATE,
-  Relationship VARCHAR(8),
-  PRIMARY KEY (Essn, Dependent_name)
+  Relationship VARCHAR(8)
 );
 
 INSERT INTO EMPLOYEE VALUES
