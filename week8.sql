@@ -19,9 +19,7 @@ call sp_assign_as_manager(5, '123456789');
 -- Exercise 2
 
 delimiter $$
-create procedure sp_assign_new_project(in emp_ssn char(10),
-                                       in proj_no int,
-									                     in work_hours float)
+create procedure sp_assign_new_project(in emp_ssn char(10), in proj_no int, in work_hours float)
 begin
   start transaction;
 	  insert into works_on(Essn, Pno, Hours)
