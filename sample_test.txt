@@ -1,0 +1,115 @@
+------ P1
+
+db.teams.insertOne({_id: 1,name: 'Manchester United', points: 3, matches: [{opponent_id: 2, goals: -2}, {opponent_id: 3, goals: 1}, {opponent_id: 4, goals: 1}]})
+
+db.teams.insertOne({_id: 2,name: 'Barcelona', points: 5, matches: [{opponent_id: 1, goals: 0}, {opponent_id: 3, goals: -1}, {opponent_id: 4, goals: 1}]})
+
+db.teams.insertOne({_id: 3,name: 'RMIT', points: 7, matches: [{opponent_id: 1, goals: -2}, {opponent_id: 2, goals: 0}, {opponent_id: 4, goals: -1}]})
+
+db.teams.insertOne({_id: 4,name: 'Tri', points: 4, matches: [{opponent_id: 1, goals: 0}, {opponent_id: 2, goals: 0}, {opponent_id: 3, goals: 1}]})
+
+
+db.teams.find().sort({points: -1}).limit(2)
+
+db.teams.find({'matches.goals': {$not: {$lt: 0}}})
+
+db.teams.find({matches: {$elemMatch: {opponent_id: 4, goals: {$lt: 0}}}})
+
+
+------ P2
+
+create table teams (
+  id int not null primary key auto_increment,
+  name varchar(20) not null unique,
+  points int not null
+) engine = innodb;
+
+create table matches (
+  id int primary key auto_increment,
+  home_team int,
+  away_team int,
+  home_score int,
+  away_score int
+) engine = innodb;
+
+insert into teams(name, points)
+values ('Manchester United', 3), ('Barcelona', 5), ('RMIT', 7), ('Tri', 4);
+
+delimiter $$
+
+create function top_team()
+  returns int not deterministic
+  
+begin
+  select id into @top_id
+  from teams
+  order by points desc
+  limit 1;
+  
+  return @top_id;
+end $$
+
+delimiter ;
+
+
+delimiter $$
+
+create trigger new_match_update_point
+  after insert on matches
+  for each row
+outer_most: begin  
+  if new.home_score > new.away_score then
+    update teams set points = points + 3
+    where id = new.home_team;
+    leave outer_most;
+  end if;
+  if new.home_score < new.away_score then
+    update teams set points = points + 3
+    where id = new.away_team;
+    leave outer_most;
+  end if;
+  update teams set points = points + 1
+  where id = new.home_team OR id = new.away_team;
+end $$
+
+delimiter ;
+
+------ P3
+
+create table scores (
+  id int primary key auto_increment,
+  match_id int,
+  team_id int,
+  scorer_name varchar(50)
+) engine = innodb;
+
+
+delimiter $$
+
+create procedure sp_score_a_goal(in param_match_id int, in param_team_id int, in param_scorer_name varchar(50))
+begin
+  start transaction;
+  
+  insert into scores(match_id, team_id, scorer_name)
+  values(param_match_id, param_team_id, param_scorer_name);
+  
+  select count(*) into @found
+  from matches
+  where id = param_match_id and (home_team = param_team_id or away_team = param_team_id);
+  
+  if @found = 0 then
+    rollback;
+  else
+    update matches set home_score = home_score + 1
+    where id = param_match_id and home_team = param_team_id;
+
+    update matches set away_score = away_score + 1
+    where id = param_match_id and away_team = param_team_id;
+  
+    commit;
+  end if;
+end $$
+
+delimiter ;
+
+
